@@ -12,7 +12,6 @@ const attendanceSchema = new mongoose.Schema({
   },
   time_in: {
     type: Date,
-    required: true,
   },
   time_out: {
     type: Date,
@@ -20,7 +19,6 @@ const attendanceSchema = new mongoose.Schema({
   qr_code: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "QRCode",
-    required: true,
   },
   check_in_status: {
     type: String,
@@ -32,6 +30,8 @@ const attendanceSchema = new mongoose.Schema({
       "Checked Out",
       "Early Check-out",
       "Missed Check-out",
+      "Absent",
+      "On Leave",
     ],
   },
   checkInLateDuration: {

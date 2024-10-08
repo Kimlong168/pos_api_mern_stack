@@ -111,7 +111,7 @@ const login = async (req, res, next) => {
 
   // Send the telegram group
   await sendTelegramMessage(
-    `User Login Successful ✅
+    `User Login Successful 🟩
     \n👮 Name: ${user.name} (${user.role})
     \n📧 Email: ${user.email}
     \n🕒 Date & Time: ${getFormattedDate(

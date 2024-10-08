@@ -2,46 +2,15 @@ const { successResponse, errorResponse } = require("../utils/responseHelpers");
 const Order = require("../models/order.model");
 const Supplier = require("../models/supplier.model");
 const Category = require("../models/category.model");
-const Product = require("../models/product.model");
+const Attendance = require("../models/attendance.model");
 const { sendTelegramMessage } = require("../utils/sendTelegramMessage");
 const {
   formatSalesReportForTelegram,
-} = require("../utils/formatSalesReportForTelegram");
+  formatAttendanceReportForTelegram,
+} = require("../utils/formatReportForTelegram");
+
 const getSalesReport = async (req, res, next) => {
   try {
-    // let date = new Date();
-    // if (req.query.date === "today") {
-    //   date.setDate(date.getDate() - 1);
-    // } else if (req.query.date === "week") {
-    //   date.setDate(date.getDate() - 7);
-    // } else if (req.query.date === "month") {
-    //   date.setMonth(date.getMonth() - 1);
-    // } else if (req.query.date === "year") {
-    //   date.setFullYear(date.getFullYear() - 1);
-    // } else if (req.query.date === "yesterday") {
-    //   date.setDate(date.getDate() - 2);
-    // } else {
-    //   date.setMonth(date.getMonth() - 6);
-    // }
-
-    // let sales = [];
-    // if (req.query.date === "yesterday") {
-    //   //  get sales for yesterday but exclue today
-    //   sales = await Order.find({
-    //     createdAt: { $gte: date, $lt: new Date().getDate() - 1 }, // Filter by date
-    //   })
-    //     .populate("user")
-    //     .populate("products.product")
-    //     .exec();
-    // } else {
-    //   sales = await Order.find({
-    //     createdAt: { $gte: date }, // Filter by date
-    //   })
-    //     .populate("user")
-    //     .populate("products.product")
-    //     .exec();
-    // }
-
     let orderData = await Order.find()
       .populate("user")
       .populate("products.product")
@@ -381,7 +350,105 @@ const sendSalesReport = async (dateQuery) => {
   }
 };
 
+const getAttendanceReport = async (req, res, next) => {
+  try {
+    let attendance = await Attendance.find().populate("employee").exec();
+
+    // Filter based on query parameters
+    if (req.query.date) {
+      attendance = attendance.filter(
+        (item) =>
+          new Date(item.date).toDateString() ===
+          new Date(req.query.date).toDateString()
+      );
+    }
+
+    const data = {
+      report_date: req.query.date,
+      total_attendance: attendance.length,
+      // all late employees
+      late_employees: attendance.filter(
+        (item) => item.check_in_status === "Late"
+      ),
+
+      // all early check out employees
+      early_check_out_employees: attendance.filter(
+        (item) => item.check_out_status === "Early Check-out"
+      ),
+
+      // all missed check out employees
+      missed_check_out_employees: attendance.filter(
+        (item) => item.check_out_status === "Missed Check-out"
+      ),
+
+      // all absent employees
+      absent_employees: attendance.filter(
+        (item) => item.check_in_status === "Absent"
+      ),
+
+      // all on leave employees
+      on_leave_employees: attendance.filter(
+        (item) => item.check_in_status === "On Leave"
+      ),
+
+      // all normal checked out employees
+      normal_checked_out_employees: attendance.filter(
+        (item) => item.check_out_status === "Checked Out"
+      ),
+
+      //on time employees
+      on_time_employees: attendance.filter(
+        (item) => item.check_in_status === "On Time"
+      ),
+    };
+
+    // Handle API call
+    if (req && res) {
+      return successResponse(res, data, "Data retrieved successfully.");
+    }
+
+    // Return attendance for cron job
+    return data;
+  } catch (error) {
+    // next(err);
+    // Handle errors for API call
+    if (req && res) {
+      return errorResponse(res, error.message, 500);
+    }
+
+    // Use next if it's a valid function
+    if (typeof next === "function") {
+      return next(error);
+    }
+
+    throw error; // Throw for cron job
+  }
+};
+
+const sendAttendanceReport = async (dateQuery) => {
+  try {
+    // Fetch the attendance data based on the date query
+    const req = { query: { date: dateQuery } };
+    const reportData = await getAttendanceReport(req);
+
+    // Format the attendance data for the Telegram message
+    const reportMessage = formatAttendanceReportForTelegram(reportData);
+
+    // Send the attendance report to Telegram
+    await sendTelegramMessage(
+      reportMessage,
+      process.env.TELEGRAM_CHAT_ID,
+      process.env.TELEGRAM_TOPIC_ATTENDANCE_ID
+    );
+    console.log("Attendance report sent to Telegram");
+  } catch (error) {
+    console.error("Error sending attendance report:", error);
+  }
+};
+
 module.exports = {
   getSalesReport,
   sendSalesReport,
+  getAttendanceReport,
+  sendAttendanceReport,
 };

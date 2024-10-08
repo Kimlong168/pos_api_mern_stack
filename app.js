@@ -12,7 +12,14 @@ const db = require("./data/database");
 const { blacklistedTokens } = require("./middlewares/authMiddleware");
 const enableCors = require("./middlewares/cors");
 const { errorResponse } = require("./utils/responseHelpers");
-const { sendSalesReport } = require("./controllers/report.controller");
+const {
+  sendSalesReport,
+  sendAttendanceReport,
+} = require("./controllers/report.controller");
+const {
+  recordAttendanceAbsentOrOnLeave,
+  recordAttendanceMissCheckout,
+} = require("./controllers/attendance.controller");
 
 const authRoutes = require("./routers/auth.routes");
 const userRoutes = require("./routers/user.routes");
@@ -60,18 +67,35 @@ app.use("/api/attendance", attendanceRoutes);
 
 // Schedule a cron job to send a message every day 59 23 * * * 11:59 PM
 cron.schedule("59 23 * * *", () => {
-  console.log("Running cron job at 11:59 PM");
+  console.log("Running cron job at 11:59 PM to send sale report");
   sendSalesReport("today");
+});
+
+// Schedule a cron job to send a message every day 30 19 * * * 7:30 PM
+cron.schedule("30 19 * * *", () => {
+  console.log("Running cron job at 11:59 PM to send attendance report");
+  sendAttendanceReport(new Date());
+});
+
+// Schedule a cron job to record attendance every time 00 12 * * * 12:00 PM
+cron.schedule("00 12 * * *", () => {
+  console.log("Running cron job at 12:00 PM to record attendance");
+  recordAttendanceAbsentOrOnLeave();
+});
+
+// Schedule a cron job to record attendance every time 00 19 * * * 7:00 PM
+cron.schedule("00 19 * * *", () => {
+  console.log("Running cron job at 7:00 PM to record attendance");
+  recordAttendanceMissCheckout();
 });
 
 // error handling middleware
 app.use((err, req, res, next) => {
   console.error("err", err.stack);
-  errorResponse(res, 500, "Something went wrong");
+  errorResponse(res, "Something went wrong!", 500);
 });
 
 // Token blacklist cleanup
-
 setInterval(() => {
   blacklistedTokens.clear();
 }, process.env.BLACKLIST_CLEANUP_INTERVAL);

@@ -107,13 +107,16 @@ const checkInAttendance = async (req, res, next) => {
     const employeeData = await User.findById(employee);
 
     await sendTelegramMessage(
-      `Attendance Check In 🟢
+      `Attendance Check In 🟩
       \n🆔 ID: ${result._id}
       \n👤 Employee: ${employeeData.name} (${employeeData.role})
       \n💰 Time In: ${getFormattedTimeWithAMPM(time_in)}
       \n📅 Date: ${getFormattedDate(new Date())}
-      \n🔖 Status: ${check_in_status}` +
-        (checkInLateDuration ? `\n\n⏲️ Late: ${checkInLateDuration}` : ""),
+      \n🔖 Status: ${
+        check_in_status === "Late"
+          ? check_in_status + " 🔴"
+          : check_in_status + " 🟢"
+      }` + (checkInLateDuration ? `\n\n⏲️ Late: ${checkInLateDuration}` : ""),
       process.env.TELEGRAM_CHAT_ID,
       process.env.TELEGRAM_TOPIC_ATTENDANCE_ID
     );
@@ -186,17 +189,21 @@ const checkOutAttendance = async (req, res, next) => {
       attendance.checkOutEarlyDuration = checkOutEarlyDuration;
     }
 
-    await attendance.save();
+    const result = await attendance.save();
 
     const employeeData = await User.findById(employee);
 
     await sendTelegramMessage(
-      `Attendance Check Out 🔴
-      \n🆔 ID: ${req.params.id}
+      `Attendance Check Out 🟥
+      \n🆔 ID: ${result._id}
       \n👤 Employee: ${employeeData.name} (${employeeData.role})
       \n💰 Time Out: ${getFormattedTimeWithAMPM(time_out)}
       \n📅 Date: ${getFormattedDate(new Date())}
-      \n🔖 Status: ${check_out_status}` +
+      \n🔖 Status: ${
+        check_out_status === "Early Check-out"
+          ? check_out_status + " 🔴"
+          : check_out_status + " 🟢"
+      }` +
         (checkOutEarlyDuration ? `\n\n⏲️ Early: ${checkOutEarlyDuration}` : ""),
       process.env.TELEGRAM_CHAT_ID,
       process.env.TELEGRAM_TOPIC_ATTENDANCE_ID
@@ -217,10 +224,78 @@ const deleteAttendance = async (req, res, next) => {
   }
 };
 
+const recordAttendanceAbsentOrOnLeave = async () => {
+  try {
+    const employees = await User.find({
+      role: { $in: ["cashier", "inventoryStaff"] },
+    });
+
+    for (const employee of employees) {
+      const attendance = await Attendance.findOne({
+        employee: employee,
+        date: new Date().toDateString(),
+      });
+
+      // check if on leave (leave request approved)
+      if (employee._id === "Approved") {
+        const attendance = new Attendance({
+          employee: employee._id,
+          date: new Date().toDateString(), // Records the date in string format (only date, no time)
+          check_in_status: "On Leave",
+          check_out_status: "On Leave",
+        });
+
+        await attendance.save();
+
+        return;
+      }
+
+      // check if absent
+      if (!attendance) {
+        const attendance = new Attendance({
+          employee: employee._id,
+          date: new Date().toDateString(), // Records the date in string format (only date, no time)
+          check_in_status: "Absent",
+          check_out_status: "Absent",
+        });
+
+        await attendance.save();
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const recordAttendanceMissCheckout = async () => {
+  try {
+    const employees = await User.find({
+      role: { $in: ["cashier", "inventoryStaff"] },
+    });
+
+    for (const employee of employees) {
+      const attendance = await Attendance.findOne({
+        employee: employee,
+        date: new Date().toDateString(),
+      });
+
+      // check if missed check out
+      if (attendance && !attendance.time_out && attendance.check_in_status !== "Absent" && attendance.check_in_status !== "On Leave") {
+        attendance.check_out_status = "Missed Check-out";
+        await attendance.save();
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   getAllAttendance,
   getAttendanceById,
   checkInAttendance,
   checkOutAttendance,
   deleteAttendance,
+  recordAttendanceAbsentOrOnLeave,
+  recordAttendanceMissCheckout,
 };
