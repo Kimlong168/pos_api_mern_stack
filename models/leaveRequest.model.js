@@ -16,12 +16,23 @@ const leaveRequestSchema = new mongoose.Schema({
     enum: ["Pending", "Approved", "Rejected"],
     default: "Pending",
   },
+  comment: {
+    type: String,
+  },
+  approvedOrRejectedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   start_date: {
     type: Date,
     required: true,
   },
   end_date: {
     type: Date,
+    required: true,
+  },
+  numberOfDays: {
+    type: Number,
     required: true,
   },
   reason: {

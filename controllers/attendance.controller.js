@@ -1,6 +1,7 @@
 const Attendance = require("../models/attendance.model");
 const User = require("../models/user.model");
 const QRCode = require("../models/qrCode.model");
+const LeaveRequest = require("../models/leaveRequest.model");
 const { successResponse, errorResponse } = require("../utils/responseHelpers");
 const { calculateDistance } = require("../utils/calculateDistance");
 const { sendTelegramMessage } = require("../utils/sendTelegramMessage");
@@ -236,8 +237,20 @@ const recordAttendanceAbsentOrOnLeave = async () => {
         date: new Date().toDateString(),
       });
 
+      if (attendance) {
+        break;
+      }
+
       // check if on leave (leave request approved)
-      if (employee._id === "Approved") {
+      const today = new Date();
+      const leaveRequest = await LeaveRequest.findOne({
+        employee: employee,
+        start_date: { $lte: today }, // Start date should be before or equal to today
+        end_date: { $gte: today },   // End date should be after or equal to today
+        status: "Approved",
+      });
+
+      if (leaveRequest) {
         const attendance = new Attendance({
           employee: employee._id,
           date: new Date().toDateString(), // Records the date in string format (only date, no time)
@@ -280,7 +293,12 @@ const recordAttendanceMissCheckout = async () => {
       });
 
       // check if missed check out
-      if (attendance && !attendance.time_out && attendance.check_in_status !== "Absent" && attendance.check_in_status !== "On Leave") {
+      if (
+        attendance &&
+        !attendance.time_out &&
+        attendance.check_in_status !== "Absent" &&
+        attendance.check_in_status !== "On Leave"
+      ) {
         attendance.check_out_status = "Missed Check-out";
         await attendance.save();
       }

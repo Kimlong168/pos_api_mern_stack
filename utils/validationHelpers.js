@@ -361,6 +361,46 @@ const validateTelegramImageBody = () => {
   return [body("caption").optional().isString()];
 };
 
+// validation rules for leave request
+const validateLeaveRequestBody = () => {
+  return [
+    body("type")
+      .notEmpty()
+      .withMessage("Leave type is required.")
+      .isString()
+      .withMessage("Leave type must be a string."),
+    body("start_date")
+      .notEmpty()
+      .withMessage("Start date is required.")
+      .isISO8601()
+      .withMessage("Start date must be a valid date."),
+    body("end_date")
+      .notEmpty()
+      .withMessage("End date is required.")
+      .isISO8601()
+      .withMessage("End date must be a valid date."),
+    body("reason")
+      .notEmpty()
+      .withMessage("Reason is required.")
+      .isString()
+      .withMessage("Reason must be a string."),
+  ];
+};
+
+const validateStatusLeaveRequestBody = () => {
+  return [
+    body("status")
+      .notEmpty()
+      .withMessage("Status is required.")
+      .isString()
+      .withMessage("Status must be a string."),
+    body("comment")
+      .optional()
+      .isString()
+      .withMessage("Comment must be a string."),
+  ];
+};
+
 module.exports = {
   validateCategoryBody,
   validateProductBody,
@@ -376,4 +416,6 @@ module.exports = {
   validateCheckOutAttendanceBody,
   validateTelegramMessageBody,
   validateTelegramImageBody,
+  validateLeaveRequestBody,
+  validateStatusLeaveRequestBody,
 };

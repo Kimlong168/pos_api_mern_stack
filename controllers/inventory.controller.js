@@ -156,6 +156,15 @@ const deleteInventory = async (req, res, next) => {
   }
 };
 
+const clearAllInventories = async (req, res, next) => {
+  try {
+    await Inventory.deleteMany();
+    successResponse(res, null, "All inventories deleted successfully");
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getAllInventories,
   getInventoryById,
@@ -163,4 +172,5 @@ module.exports = {
   updateInventory,
   deleteInventory,
   getInventoryByProdcutId,
+  clearAllInventories,
 };

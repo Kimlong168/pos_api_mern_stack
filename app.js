@@ -21,6 +21,10 @@ const {
   recordAttendanceMissCheckout,
 } = require("./controllers/attendance.controller");
 
+const {
+  rejectLeaveRequestAfterEndDate,
+} = require("./controllers/leaveRequest.controller");
+
 const authRoutes = require("./routers/auth.routes");
 const userRoutes = require("./routers/user.routes");
 const categoryRoutes = require("./routers/category.routes");
@@ -35,6 +39,7 @@ const abaPaywayRoutes = require("./routers/abaPayway.routes");
 const telegramRoutes = require("./routers/telegramSender.routes");
 const qrCodeRoutes = require("./routers/qrCode.routes");
 const attendanceRoutes = require("./routers/attendance.routes");
+const leaveRequestRoutes = require("./routers/LeaveRequest.routes");
 
 app.use(enableCors);
 app.use(bodyParser.json());
@@ -64,6 +69,7 @@ app.use("/api/aba-payway", abaPaywayRoutes);
 app.use("/api/telegram", telegramRoutes);
 app.use("/api/qr-code", qrCodeRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/leave-requests", leaveRequestRoutes);
 
 // Schedule a cron job to send a message every day 59 23 * * * 11:59 PM
 cron.schedule("59 23 * * *", () => {
@@ -71,22 +77,29 @@ cron.schedule("59 23 * * *", () => {
   sendSalesReport("today");
 });
 
-// Schedule a cron job to send a message every day 30 19 * * * 7:30 PM
-cron.schedule("30 19 * * *", () => {
-  console.log("Running cron job at 11:59 PM to send attendance report");
-  sendAttendanceReport(new Date());
+// Schedule a cron job to send a message every day 00 1 * * * 1:00 AM
+cron.schedule("00 1 * * *", () => {
+  console.log("Running cron job at 11:59 PM to send sale report");
+  rejectLeaveRequestAfterEndDate();
 });
 
-// Schedule a cron job to record attendance every time 00 12 * * * 12:00 PM
-cron.schedule("00 12 * * *", () => {
+
+// Schedule a cron job to record attendance every time 00 19 * * * 7:00 PM
+cron.schedule("00 19 * * *", () => {
   console.log("Running cron job at 12:00 PM to record attendance");
   recordAttendanceAbsentOrOnLeave();
 });
 
-// Schedule a cron job to record attendance every time 00 19 * * * 7:00 PM
-cron.schedule("00 19 * * *", () => {
+// Schedule a cron job to record attendance every time 10 19 * * * 7:10 PM
+cron.schedule("10 19 * * *", () => {
   console.log("Running cron job at 7:00 PM to record attendance");
   recordAttendanceMissCheckout();
+});
+
+// Schedule a cron job to send a message every day 30 19 * * * 7:30 PM
+cron.schedule("30 19 * * *", () => {
+  console.log("Running cron job at 11:59 PM to send attendance report");
+  sendAttendanceReport(new Date());
 });
 
 // error handling middleware

@@ -82,7 +82,9 @@ const sendEmail = async (req, res, next) => {
     // }
 
     // Send the email
-    await mailerSend.email.send(emailParams);
+    const result = await mailerSend.email.send(emailParams);
+
+    console.log("Email sent successfully", result);
 
     // If successful, send a success response
     successResponse(res, null, "Email sent successfully");

@@ -66,7 +66,6 @@ const formatSalesReportForTelegram = (data) => {
   ${total_sales_by_status
     .map((s) => `  - ${s.status}: ${s.amount} orders`)
     .join("\n")}
-  
   End of Report
   `;
 

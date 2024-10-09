@@ -38,6 +38,13 @@ router.put(
 );
 
 router.delete(
+  "/clear-all",
+  authenticateToken,
+  verifyRole(["admin", "manager", "inventoryStaff"]),
+  inventoryController.clearAllInventories
+);
+
+router.delete(
   "/:id",
   authenticateToken,
   verifyRole(["admin", "manager", "inventoryStaff"]),
