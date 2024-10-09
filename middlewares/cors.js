@@ -1,9 +1,6 @@
 const enableCors = (req, res, next) => {
   const clientUrl = process.env.CLIENT_SIDE_URL;
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://pos-client-mern-stack.netlify.app"
-  );
+  res.setHeader("Access-Control-Allow-Origin", clientUrl);
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, PATCH, DELETE, OPTIONS"
