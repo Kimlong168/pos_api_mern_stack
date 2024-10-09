@@ -45,7 +45,6 @@ app.use(enableCors);
 app.use(bodyParser.json());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
-app.use(express.static("public"));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
