@@ -39,7 +39,7 @@ const abaPaywayRoutes = require("./routers/abaPayway.routes");
 const telegramRoutes = require("./routers/telegramSender.routes");
 const qrCodeRoutes = require("./routers/qrCode.routes");
 const attendanceRoutes = require("./routers/attendance.routes");
-const leaveRequestRoutes = require("./routers/leaveRequest.routes");
+const leaveRequestRoutes = require("./routers/leaveRequests.routes");
 
 app.use(enableCors);
 app.use(bodyParser.json());
