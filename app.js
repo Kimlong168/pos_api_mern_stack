@@ -39,7 +39,7 @@ const abaPaywayRoutes = require("./routers/abaPayway.routes");
 const telegramRoutes = require("./routers/telegramSender.routes");
 const qrCodeRoutes = require("./routers/qrCode.routes");
 const attendanceRoutes = require("./routers/attendance.routes");
-const leaveRequestRoutes = require("./routers/LeaveRequest.routes");
+const leaveRequestRoutes = require("./routers/leaveRequest.routes");
 
 app.use(enableCors);
 app.use(bodyParser.json());
@@ -82,7 +82,6 @@ cron.schedule("00 1 * * *", () => {
   console.log("Running cron job at 11:59 PM to send sale report");
   rejectLeaveRequestAfterEndDate();
 });
-
 
 // Schedule a cron job to record attendance every time 00 19 * * * 7:00 PM
 cron.schedule("00 19 * * *", () => {
