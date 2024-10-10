@@ -4,14 +4,14 @@ const { successResponse, errorResponse } = require("../utils/responseHelpers");
 const { sendTelegramMessage } = require("../utils/sendTelegramMessage");
 const { getFormattedDate } = require("../utils/getFormattedDate");
 const { getNumberOfDays } = require("../utils/getNumberOfDays");
+const statusOrder = {
+  Pending: 1,
+  Approved: 2,
+  Rejected: 3,
+};
+
 const getAllLeaveRequests = async (req, res, next) => {
   try {
-    const statusOrder = {
-      Pending: 1,
-      Approved: 2,
-      Rejected: 3,
-    };
-
     const leaveRequests = await LeaveRequest.find()
       .populate({
         path: "employee",
@@ -64,6 +64,43 @@ const getLeaveRequestById = async (req, res, next) => {
     );
   } catch (error) {
     return next(error);
+  }
+};
+
+const getLeaveRequestsByEmployeeId = async (req, res, next) => {
+  try {
+    const leaveRequests = await LeaveRequest.find({
+      employee: req.params.id,
+    })
+      .populate({
+        path: "employee",
+        select: "name role",
+      })
+      .populate({
+        path: "approvedOrRejectedBy",
+        select: "name role",
+      })
+      .exec();
+
+    if (!leaveRequests) {
+      return errorResponse(res, "Leave request not found", 404);
+    }
+
+    // Sort in application code
+    leaveRequests.sort((a, b) => {
+      const statusA = statusOrder[a.status] || 4; // Assign a default value if status not found
+      const statusB = statusOrder[b.status] || 4; // Assign a default value if status not found
+      return statusA - statusB; // Sort by the mapped values
+    });
+
+    return successResponse(
+      res,
+
+      leaveRequests,
+      "Leave requests retrieved successfully"
+    );
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -153,7 +190,22 @@ const updateLeaveRequest = async (req, res, next) => {
 
 const deleteLeaveRequest = async (req, res, next) => {
   try {
-    const leaveRequest = await LeaveRequest.findByIdAndDelete(req.params.id);
+    // can only delete pending requests
+    const leaveRequest = await LeaveRequest.findById(req.params.id);
+
+    if (!leaveRequest) {
+      return errorResponse(res, "Leave request not found", 404);
+    }
+
+    if (leaveRequest.status !== "Pending") {
+      return errorResponse(
+        res,
+        "Cannot delete a leave request that is not pending",
+        400
+      );
+    }
+
+    await LeaveRequest.findByIdAndDelete(req.params.id);
 
     await sendTelegramMessage(
       `
@@ -307,4 +359,5 @@ module.exports = {
   approveOrRejectLeave,
   clearAllLeaveRequests,
   rejectLeaveRequestAfterEndDate,
+  getLeaveRequestsByEmployeeId,
 };

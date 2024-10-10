@@ -9,6 +9,7 @@ const getNumberOfDays = (startDate, endDate) => {
 
   return differenceInDays + 1; // Add 1 to include the end date
 };
+
 module.exports = {
   getNumberOfDays,
 };

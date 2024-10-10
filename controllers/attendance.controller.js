@@ -46,6 +46,40 @@ const getAttendanceById = async (req, res, next) => {
   }
 };
 
+const getAttendanceByEmployeeId = async (req, res, next) => {
+  try {
+    const attendanceRecords = await Attendance.find({
+      employee: req.params.id,
+    })
+      .populate({
+        path: "employee",
+        select: "name email",
+      })
+      .populate({
+        path: "qr_code",
+        select: "location",
+      })
+      .sort({ date: -1 }) // Sort by latest date first
+      .exec();
+
+    if (!attendanceRecords) {
+      return errorResponse(
+        res,
+        "No attendance records found for this employee",
+        404
+      );
+    }
+
+    return successResponse(
+      res,
+      attendanceRecords,
+      "Data retrieved successfully."
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
 const checkInAttendance = async (req, res, next) => {
   try {
     const {
@@ -246,7 +280,7 @@ const recordAttendanceAbsentOrOnLeave = async () => {
       const leaveRequest = await LeaveRequest.findOne({
         employee: employee,
         start_date: { $lte: today }, // Start date should be before or equal to today
-        end_date: { $gte: today },   // End date should be after or equal to today
+        end_date: { $gte: today }, // End date should be after or equal to today
         status: "Approved",
       });
 
@@ -316,4 +350,5 @@ module.exports = {
   deleteAttendance,
   recordAttendanceAbsentOrOnLeave,
   recordAttendanceMissCheckout,
+  getAttendanceByEmployeeId,
 };

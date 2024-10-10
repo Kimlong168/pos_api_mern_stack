@@ -13,6 +13,12 @@ router.get("/", attendanceController.getAllAttendance);
 
 router.get("/:id", attendanceController.getAttendanceById);
 
+router.get(
+  "/employee/:id",
+  authenticateToken,
+  attendanceController.getAttendanceByEmployeeId
+);
+
 router.post(
   "/check-in",
   authenticateToken,

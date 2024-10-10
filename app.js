@@ -78,13 +78,13 @@ cron.schedule("59 23 * * *", () => {
 
 // Schedule a cron job to send a message every day 00 1 * * * 1:00 AM
 cron.schedule("00 1 * * *", () => {
-  console.log("Running cron job at 11:59 PM to send sale report");
+  console.log("Running cron job at 1 AM to send sale report");
   rejectLeaveRequestAfterEndDate();
 });
 
 // Schedule a cron job to record attendance every time 00 19 * * * 7:00 PM
 cron.schedule("00 19 * * *", () => {
-  console.log("Running cron job at 12:00 PM to record attendance");
+  console.log("Running cron job at 7:00 PM to record attendance");
   recordAttendanceAbsentOrOnLeave();
 });
 

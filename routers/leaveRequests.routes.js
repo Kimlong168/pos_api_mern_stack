@@ -21,6 +21,12 @@ router.get(
   leaveRequestController.getLeaveRequestById
 );
 
+router.get(
+  "/employee/:id",
+  authenticateToken,
+  leaveRequestController.getLeaveRequestsByEmployeeId
+);
+
 router.post(
   "/",
   authenticateToken,
