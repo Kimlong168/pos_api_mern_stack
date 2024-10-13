@@ -78,18 +78,22 @@ cron.schedule("59 23 * * *", () => {
 
 // Schedule a cron job to send a message every day 00 1 * * * 1:00 AM
 cron.schedule("00 1 * * *", () => {
-  console.log("Running cron job at 1 AM to reject leave requests after end date");
+  console.log(
+    "Running cron job at 1 AM to reject leave requests after end date"
+  );
   rejectLeaveRequestAfterEndDate();
 });
 
 // Schedule a cron job to record attendance every time 00 17 * * * 5:00 PM
 cron.schedule("00 17 * * *", () => {
-  console.log("Running cron job at 5:00 PM to record attendance absent or on leave");
+  console.log(
+    "Running cron job at 5:00 PM to record attendance absent or on leave"
+  );
   recordAttendanceAbsentOrOnLeave();
 });
 
-// Schedule a cron job to record attendance every time 10 19 * * * 7:10 PM
-cron.schedule("10 19 * * *", () => {
+// Schedule a cron job to record attendance every time 00 19 * * * 7:00 PM
+cron.schedule("00 19 * * *", () => {
   console.log("Running cron job at 7:00 PM to record attendance miss checkout");
   recordAttendanceMissCheckout();
 });
