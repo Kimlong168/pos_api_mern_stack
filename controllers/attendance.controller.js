@@ -271,42 +271,38 @@ const recordAttendanceAbsentOrOnLeave = async () => {
         date: new Date().toDateString(),
       });
 
-      if (attendance) {
-        break;
-      }
-
-      // check if on leave (leave request approved)
-      const today = new Date();
-      const leaveRequest = await LeaveRequest.findOne({
-        employee: employee,
-        start_date: { $lte: today }, // Start date should be before or equal to today
-        end_date: { $gte: today }, // End date should be after or equal to today
-        status: "Approved",
-      });
-
-      if (leaveRequest) {
-        const attendance = new Attendance({
-          employee: employee._id,
-          date: new Date().toDateString(), // Records the date in string format (only date, no time)
-          check_in_status: "On Leave",
-          check_out_status: "On Leave",
-        });
-
-        await attendance.save();
-
-        return;
-      }
-
-      // check if absent
+      // if no attendance record for the day, then record as absent or on leave
       if (!attendance) {
-        const attendance = new Attendance({
-          employee: employee._id,
-          date: new Date().toDateString(), // Records the date in string format (only date, no time)
-          check_in_status: "Absent",
-          check_out_status: "Absent",
+        // check if on leave (leave request approved)
+        const today = new Date();
+        const leaveRequest = await LeaveRequest.findOne({
+          employee: employee,
+          start_date: { $lte: today }, // Start date should be before or equal to today
+          end_date: { $gte: today }, // End date should be after or equal to today
+          status: "Approved",
         });
 
-        await attendance.save();
+        // if on leave, then record attendance as "On Leave"
+        if (leaveRequest) {
+          const attendance = new Attendance({
+            employee: employee._id,
+            date: new Date().toDateString(),
+            check_in_status: "On Leave",
+            check_out_status: "On Leave",
+          });
+
+          await attendance.save();
+        } else {
+          // if not on leave, then absent
+          const attendance = new Attendance({
+            employee: employee._id,
+            date: new Date().toDateString(),
+            check_in_status: "Absent",
+            check_out_status: "Absent",
+          });
+
+          await attendance.save();
+        }
       }
     }
   } catch (err) {
