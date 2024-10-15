@@ -15,7 +15,9 @@ const getAllOrders = async (req, res, next) => {
         path: "products.product",
         select: "name price barcode stock_quantity image",
       })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
       .exec();
+
     successResponse(res, orders, "Data retrieved successfully.");
   } catch (err) {
     next(err);
