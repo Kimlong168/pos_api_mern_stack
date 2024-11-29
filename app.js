@@ -61,7 +61,7 @@ app.use("/", (req, res) => {
   console.log("User IP:", userIp);
 
   // Example IP range of your Wi-Fi network (adjust accordingly)
-  const allowedNetworkRange = "203.0.113.";
+  const allowedNetworkRange = "172.23.0.";
 
   // Check if the user's IP starts with the allowed range
   if (userIp.startsWith(allowedNetworkRange)) {
