@@ -62,7 +62,7 @@ app.use("/", (req, res) => {
   console.log("User IP:", userIp);
 
   // Example IP range of your Wi-Fi network (adjust accordingly)
-  const allowedNetworkRange = "172.23.0.";
+  const allowedNetworkRange = "103.16.61.";
 
   // Check if the user's IP starts with the allowed range
   if (userIp.startsWith(allowedNetworkRange)) {
@@ -71,7 +71,7 @@ app.use("/", (req, res) => {
     res
       .status(403)
       .send(
-        `Access denied. You must be connected to the correct Wi-Fi network!!! ${userIp}`
+        `Access denied. You must be connected to the correct Wi-Fi network!!! ${userIp} <br/> You have to connect to CADT Student Wifi`
       );
   }
 });
