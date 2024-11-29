@@ -65,12 +65,12 @@ app.use("/", (req, res) => {
 
   // Check if the user's IP starts with the allowed range
   if (userIp.startsWith(allowedNetworkRange)) {
-    res.send("You are connected to the correct network! Welcome.");
+    res.send(`You are connected to the correct network! Welcome. ${userIp}`);
   } else {
     res
       .status(403)
       .send(
-        "Access denied. You must be connected to the correct Wi-Fi network!!!"
+        `Access denied. You must be connected to the correct Wi-Fi network!!! ${userIp}`
       );
   }
 });
@@ -138,7 +138,7 @@ setInterval(() => {
 
 // Start the server
 db.connect(() => {
-  app.listen(PORT,  () => {
+  app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 });
