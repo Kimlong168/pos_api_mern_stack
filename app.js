@@ -41,7 +41,6 @@ const qrCodeRoutes = require("./routers/qrCode.routes");
 const attendanceRoutes = require("./routers/attendance.routes");
 const leaveRequestRoutes = require("./routers/leaveRequests.routes");
 
-app.set("trust proxy", true);
 app.use(enableCors);
 app.use(bodyParser.json());
 app.use(express.json());
@@ -55,9 +54,11 @@ app.use(
   })
 );
 
+app.set("trust proxy", true);
 app.use("/", (req, res) => {
   const userIp = req.ip; // Get the real user's IP address from the request
 
+  console.log(req.headers["x-forwarded-for"]);
   console.log("User IP:", userIp);
 
   // Example IP range of your Wi-Fi network (adjust accordingly)
