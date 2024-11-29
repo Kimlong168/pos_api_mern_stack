@@ -120,7 +120,7 @@ const checkInAttendance = async (req, res, next) => {
     if (distance > maxDistance) {
       return errorResponse(
         res,
-        "You are not at the valid location to scan this QR code",
+        `You are not at the valid location to scan this QR code. Distance: ${distance} meters`,
         403
       );
     }
@@ -211,7 +211,7 @@ const checkOutAttendance = async (req, res, next) => {
     if (distance > maxDistance) {
       return errorResponse(
         res,
-        "You are not at the valid location to scan this QR code",
+        `You are not at the valid location to scan this QR code. Distance: ${distance} meters`,
         403
       );
     }

@@ -18,6 +18,8 @@ const authenticateToken = (req, res, next) => {
     if (err) return errorResponse(res, "Unauthorized", 401);
     req.user = user;
     req.token = token;
+    console.log("IPPP", req.ip);
+
     next();
   });
 };

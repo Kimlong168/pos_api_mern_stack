@@ -41,6 +41,7 @@ const qrCodeRoutes = require("./routers/qrCode.routes");
 const attendanceRoutes = require("./routers/attendance.routes");
 const leaveRequestRoutes = require("./routers/leaveRequests.routes");
 
+app.set("trust proxy", true);
 app.use(enableCors);
 app.use(bodyParser.json());
 app.use(express.json());
@@ -53,6 +54,26 @@ app.use(
     cookie: { secure: false }, // Use true in production with HTTPS
   })
 );
+
+app.use("/", (req, res) => {
+  const userIp = req.ip; // Get the real user's IP address from the request
+
+  console.log("User IP:", userIp);
+
+  // Example IP range of your Wi-Fi network (adjust accordingly)
+  const allowedNetworkRange = "203.0.113.";
+
+  // Check if the user's IP starts with the allowed range
+  if (userIp.startsWith(allowedNetworkRange)) {
+    res.send("You are connected to the correct network! Welcome.");
+  } else {
+    res
+      .status(403)
+      .send(
+        "Access denied. You must be connected to the correct Wi-Fi network!!!"
+      );
+  }
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -117,7 +138,7 @@ setInterval(() => {
 
 // Start the server
 db.connect(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT,  () => {
     console.log(`Server running on port ${PORT}`);
   });
 });
