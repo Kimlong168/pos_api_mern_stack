@@ -55,17 +55,18 @@ app.use(
 );
 
 app.set("trust proxy", true);
+
 app.use("/", (req, res) => {
-  const userIp = req.ip; // Get the real user's IP address from the request
+  const userIp = req.ip; t
 
-  console.log(req.headers["x-forwarded-for"]);
-  console.log("User IP:", userIp);
+  const allowedNetworkRanges = ["202.56.3."];
 
-  // Example IP range of your Wi-Fi network (adjust accordingly)
-  const allowedNetworkRange = "103.16.61.";
+  // Check if the user's IP starts with any allowed range
+  const isAllowed = allowedNetworkRanges.some((range) =>
+    userIp.startsWith(range)
+  );
 
-  // Check if the user's IP starts with the allowed range
-  if (userIp.startsWith(allowedNetworkRange)) {
+  if (isAllowed) {
     res.send(`You are connected to the correct network! Welcome. ${userIp}`);
   } else {
     res
