@@ -284,6 +284,11 @@ const validateQRCodeBody = () => {
       .withMessage("Location is required.")
       .isString()
       .withMessage("Location must be a string."),
+    // body("allowedNetworkRanges")
+    //   .notEmpty()
+    //   .withMessage("Allowed Network Ranges is required.")
+    //   .isArray()
+    //   .withMessage("Allowed Network Ranges must be an array."),
   ];
 };
 

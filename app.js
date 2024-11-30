@@ -54,28 +54,28 @@ app.use(
   })
 );
 
-app.set("trust proxy", true);
+// app.set("trust proxy", true);
 
-app.use("/", (req, res) => {
-  const userIp = req.ip; 
+// app.use("/", (req, res) => {
+//   const userIp = req.ip;
 
-  const allowedNetworkRanges = ["202.56.3."];
+//   const allowedNetworkRanges = ["202.56.3."];
 
-  // Check if the user's IP starts with any allowed range
-  const isAllowed = allowedNetworkRanges.some((range) =>
-    userIp.startsWith(range)
-  );
+//   // Check if the user's IP starts with any allowed range
+//   const isAllowed = allowedNetworkRanges.some((range) =>
+//     userIp.startsWith(range)
+//   );
 
-  if (isAllowed) {
-    res.send(`You are connected to the correct network! Welcome. ${userIp}`);
-  } else {
-    res
-      .status(403)
-      .send(
-        `Access denied. You must be connected to the correct Wi-Fi network!!! ${userIp} <br/> You have to connect to CADT Student Wifi`
-      );
-  }
-});
+//   if (isAllowed) {
+//     res.send(`You are connected to the correct network! Welcome. ${userIp}`);
+//   } else {
+//     res
+//       .status(403)
+//       .send(
+//         `Access denied. You must be connected to the correct Wi-Fi network!!! ${userIp}`
+//       );
+//   }
+// });
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
