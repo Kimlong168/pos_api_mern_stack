@@ -57,7 +57,7 @@ app.use(
 app.set("trust proxy", true);
 
 app.use("/", (req, res) => {
-  const userIp = req.ip; t
+  const userIp = req.ip; 
 
   const allowedNetworkRanges = ["202.56.3."];
 
