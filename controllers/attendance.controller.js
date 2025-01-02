@@ -435,7 +435,7 @@ const recordAttendanceAbsentOrOnLeave = async () => {
 
     for (const employee of employees) {
       const attendance = await Attendance.findOne({
-        employee: employee,
+        employee: employee._id,
         date: new Date().toDateString(),
       });
 
@@ -444,7 +444,7 @@ const recordAttendanceAbsentOrOnLeave = async () => {
         // check if on leave (leave request approved)
         const today = new Date();
         const leaveRequest = await LeaveRequest.findOne({
-          employee: employee,
+          employee: employee._id,
           start_date: { $lte: today }, // Start date should be before or equal to today
           end_date: { $gte: today }, // End date should be after or equal to today
           status: "Approved",
@@ -486,7 +486,7 @@ const recordAttendanceMissCheckout = async () => {
 
     for (const employee of employees) {
       const attendance = await Attendance.findOne({
-        employee: employee,
+        employee: employee._id,
         date: new Date().toDateString(),
       });
 
