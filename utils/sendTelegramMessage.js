@@ -34,6 +34,7 @@ const sendTelegramImage = async (image, caption, chat_id, topic_id) => {
     form.append("chat_id", chatId);
     form.append("photo", image);
     form.append("caption", caption);
+    
 
     if (topic_id) {
       form.append("message_thread_id", topic_id);
